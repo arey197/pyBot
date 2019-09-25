@@ -1,10 +1,12 @@
 # module imports
 import discord
+from discord.ext import commands
+import os
 import json
 from os import listdir
 from os.path import isfile, join
 
-# reading the json file
+# Reading the json file
 with open("botsettings.json") as json_data:
     botSettings = json.load(json_data)
     token = botSettings.get("token")
@@ -13,43 +15,27 @@ with open("botsettings.json") as json_data:
     # adminID = botSettings.get("adminID")  // them on the json file
 
 
-client = discord.Client()
-
-# listing all the files on cmds
-cmd = []
-onlyfiles = [f for f in listdir("cmds") if isfile(join("cmds", f))]
-
-for i in range(len(onlyfiles)):
-    cmd.append(onlyfiles[i].split(".")[0])   # removes the extension from the file and stores it on cmd
+client = commands.Bot(command_prefix=prefix)
 
 
 @client.event
 async def on_ready():
+    await client.change_presence(status=discord.Status.online, activity=discord.Game("Miami's daily traffic!"))
     print('We have logged in as {0.user}'.format(client))
-    if not onlyfiles:
-        print("No commands to load!")
-    else:
-        print(onlyfiles)
-
-'''
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith(f"{prefix}hello"):
-        await message.channel.send('Hello!')
-'''
 
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+@client.command()
+async def load(ctx, extension):
+    client.load_extension(f"cogs.{extension}")
 
-    for x in range(len(cmd)):
-        if message.content.startswith(f"{prefix}{cmd[x]}"):
-            await message.channel.send(f"Yup, the **{cmd[x]}** command exists!")
-            break
+
+@client.command()
+async def unload(ctx, extension):
+    client.unload_extension(f"cogs.{extension}")
+
+for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
+        client.load_extension(f"cogs.{filename[:-3]}")  # removes the last 3 characters of the string (.py)
+
 
 client.run(token)
