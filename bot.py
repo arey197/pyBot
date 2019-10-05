@@ -39,10 +39,10 @@ async def load(ctx, extension):
 async def unload(ctx, extension):
     client.unload_extension(f"cogs.{extension}")
 
-for filename in os.listdir("./cogs"):
+for filename in os.listdir("./cogs"): #Loads the cogs on the bot
     if filename.endswith(".py"):
         client.load_extension(f"cogs.{filename[:-3]}")  # removes the last 3 characters of the string (.py)
         print(f"Loaded cogs.{filename[:-3]} correctly")
 
 
-client.run(token)
+client.run(token) #keeps the bot running
